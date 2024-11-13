@@ -28,7 +28,6 @@
         
         .button-container {
             display: flex;
-            gap: 20px;
             justify-content: center; /* Center buttons horizontally */
         }
 
@@ -62,7 +61,6 @@
     <h1>Gus Treat Dispenser</h1>
     <div class="button-container">
         <button onclick="toggleServo()">Toggle Rotation</button>
-        <button onclick="wipe()">Wipe</button>
     </div>
 
     <script>
@@ -70,12 +68,6 @@
             fetch('/servo_control', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => console.log("Toggle rotation:", data));
-        }
-
-        function wipe() {
-            fetch('/wipe', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => console.log("Wipe action:", data));
         }
     </script>
 </body>
