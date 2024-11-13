@@ -30,9 +30,11 @@ def index():
 def servo_control():
     global is_rotating
     if is_rotating:
-        # Stop the servo
+        # Stop the servo and perform the "wipe" action
         rotate_servo(STOP_DUTY)
         is_rotating = False
+        # Call the wipe function to rotate clockwise for 2 seconds
+        wipe()
     else:
         # Start rotating counterclockwise
         rotate_servo(CCW_DUTY)
