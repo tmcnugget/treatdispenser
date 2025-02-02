@@ -20,6 +20,7 @@ value = 0
 pressed = 0
 
 def wrap(index, lock):
+    index = abs(index)
     return index % lock
 
 def text(draw, text, size, x, y, colour):
@@ -33,7 +34,7 @@ def gui_button(draw, text_value, size, x, y, index, lock, id):
     font = ImageFont.truetype("font.ttf", size)
 
     if selected:
-        draw.rectangle([(0, y), (70, y + size)], outline="white", fill="white", width=1)
+        draw.rectangle([(0, y), (140, y - size)], outline="white", fill="white", width=1)
         text(draw, text_value, size, x, y, "black")
     else:
         text(draw, text_value, size, x, y, "white")
