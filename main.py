@@ -87,6 +87,7 @@ def button_callback():
     toggle = 1
     pressed = 1
     time.sleep(0.05)
+    pressed = 0
 
 def button_released_callback():
     global toggled
