@@ -33,12 +33,12 @@ def gui_button(draw, text_value, size, x, y, index, lock, id):
     font = ImageFont.truetype("font.ttf", size)
 
     if selected:
-        text(draw, text_value, size, x, y, "black")
         x_min, y_min, x_max, y_max = font.getbbox(text_value)
         text_width = x_max - x_min
         text_height = y_max - y_min
 
         draw.rectangle([(x - 2, y - 2), (x + text_width + 2, y + text_height + 2)], outline="white", fill="white", width=1)
+        text(draw, text_value, size, x, y, "black")
     else:
         text(draw, text_value, size, x, y, "white")
         
