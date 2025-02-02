@@ -52,7 +52,7 @@ def update_display():
                 draw.text((device.width // 2 - 20, 18), f"{amount:02}g", font=font, fill="white")
                 # Dispense banner at bottom
                 draw.rectangle((0, device.height - 16, device.width, device.height), fill="white")
-                draw.text((device.width // 2 - 30, device.height - 14), "Dispense", font=font, fill="black")
+                draw.text((device.width // 2 - 30, device.height - 18), "Dispense", font=font, fill="black")
             else:
                 # Home Screen
                 for i, item in enumerate(menu_items):
