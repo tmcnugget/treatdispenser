@@ -39,13 +39,12 @@ def update_display():
                 y_pos = i * 20  # Adjust spacing
                 
                 if selected == i:
-                    # Selected item: Draw white box with black text
+                    # Selected item: White box with black text
                     draw.rectangle((0, y_pos, device.width, y_pos + 18), fill="white")
                     draw.text((5, y_pos), item, font=font, fill="black")
                 elif index == i:
-                    # Highlighted item: Just underline it
-                    draw.text((5, y_pos), item, font=font, fill="white")
-                    draw.line((5, y_pos + 17, device.width - 5, y_pos + 17), fill="white")
+                    # Highlighted item: Add > item <
+                    draw.text((5, y_pos), f"> {item} <", font=font, fill="white")
                 else:
                     # Normal items
                     draw.text((5, y_pos), item, font=font, fill="white")
@@ -56,8 +55,10 @@ def update_display():
 def encoder_callback():
     global current_index
     with detent_lock:
-        if selected_index is None:  # Only allow scrolling if not selected
-            current_index = (current_index + 1) % len(menu_items) if encoder.steps > 0 else (current_index - 1) % len(menu_items)
+        if selected_index is None:  # Only move when not selected
+            new_index = current_index + (1 if encoder.steps > 0 else -1)
+            if 0 <= new_index < len(menu_items):  # Prevent wrapping
+                current_index = new_index
     print(f"Menu Position: {current_index}")
 
 # Button press callback
@@ -71,7 +72,7 @@ def button_callback():
     print(f"Selected Item: {menu_items[current_index]}")
 
 # Setup rotary encoder and button
-encoder = RotaryEncoder(CLK_PIN, DT_PIN, wrap=True, max_steps=len(menu_items) - 1)
+encoder = RotaryEncoder(CLK_PIN, DT_PIN, wrap=False, max_steps=len(menu_items) - 1)
 button = Button(SW_PIN, pull_up=True, bounce_time=0.05)
 
 encoder.when_rotated = encoder_callback
