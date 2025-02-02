@@ -40,9 +40,8 @@ def update_display():
             mode = "Auto" if in_auto_mode else "Home"
 
         with canvas(device) as draw:
-            # Top Banner: Treat Vendor
-            draw.rectangle((0, 0, device.width, 16), fill="white")
-            draw.text((device.width // 2 - 50, 2), "Treat Vendor", font=font, fill="black")
+            # Top Banner: Treat Vendor (Just Text, No Fill)
+            draw.text((device.width // 2 - 50, 2), "Treat Vendor", font=font, fill="white")
 
             if in_auto_mode:
                 # Auto Mode Page
