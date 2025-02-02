@@ -34,7 +34,7 @@ def gui_button(draw, text_value, size, x, y, index, lock, id):
     font = ImageFont.truetype("font.ttf", size)
 
     if selected:
-        draw.rectangle([(0, 20), (140, 0)], outline="white", fill="white", width=1)
+        draw.rectangle([(0, 0), (140, 20)], outline="white", fill="white", width=1)
         text(draw, text_value, size, x, y, "black")
     else:
         text(draw, text_value, size, x, y, "white")
