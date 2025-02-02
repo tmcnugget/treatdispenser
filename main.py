@@ -20,8 +20,7 @@ value = 0
 pressed = 0
 
 def wrap(index, lock):
-    index = abs(index)
-    return index % lock
+    return (index % lock) + 1
 
 def text(draw, text, size, x, y, colour):
     """Function to display text on the OLED display"""
