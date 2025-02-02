@@ -36,7 +36,7 @@ def gui_button(draw, text_value, size, x, y, index, lock, id, box1, box2, direct
         draw.rectangle([(0, box1), (140, box2)], outline="white", fill="white", width=1)
         text(draw, text_value, size, x, y, "black")
         if pressed:
-            page == direct
+            page = direct
     else:
         text(draw, text_value, size, x, y, "white")
         
