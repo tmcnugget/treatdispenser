@@ -19,95 +19,103 @@ device = ssd1306(serial)
 FONT_PATH = "font.ttf"  # Change if needed
 FONT_SIZE = 16
 font = ImageFont.truetype(FONT_PATH, FONT_SIZE)
-font_large = ImageFont.truetype(FONT_PATH, 24)
 
-# Menu States
-STATE_HOME = "home"
-STATE_AUTO = "auto"
-STATE_MANUAL = "manual"
-STATE_ADJUST_AMOUNT = "adjust_amount"
+# Menu Items
+menu_items = ["Auto", "Manual"]
+current_index = 0  # Tracks menu position
+selected_index = None  # Tracks selected item
 
-menu_state = STATE_HOME
-selected_index = 0  # Tracks selection in home & auto menus
-amount = 0  # Default amount
+# Auto Mode Variables
+amount = 0
+in_auto_mode = False
 detent_lock = threading.Lock()
 
-# Track encoder position manually
-encoder_position = 0
-
-# Function to render menu on OLED
+# Function to render the menu and pages
 def update_display():
-    with detent_lock:
-        state = menu_state
-        index = selected_index
-        num = amount
-    
-    with canvas(device) as draw:
-        if state == STATE_HOME:
-            draw.text((20, 0), "Treat Vendor", font=font, fill="white")  # Banner
-            
-            draw.text((20, 20), "[Auto]" if index == 0 else " Auto ", font=font, fill="white")
-            draw.text((90, 20), "[Manual]" if index == 1 else " Manual ", font=font, fill="white")
+    global in_auto_mode
+    while True:
+        with detent_lock:
+            index = current_index
+            selected = selected_index
+            mode = "Auto" if in_auto_mode else "Home"
 
-        elif state == STATE_AUTO:
-            draw.text((5, 0), "< Back", font=font, fill="white")
-            draw.text((45, 20), "[Amount]" if index == 0 else " Amount ", font=font, fill="white")
-            draw.text((55, 45), f"{num:02d}", font=font_large, fill="white")
-            draw.text((25, 60), "Dispense", font=font, fill="white")  # Bottom banner
+        with canvas(device) as draw:
+            # Top Banner: Treat Vendor
+            draw.rectangle((0, 0, device.width, 16), fill="white")
+            draw.text((device.width // 2 - 50, 2), "Treat Vendor", font=font, fill="black")
 
-# Encoder Callback
-def encoder_callback():
-    global selected_index, amount, menu_state, encoder_position
-
-    with detent_lock:
-        if encoder.is_active:
-            movement = encoder.value - encoder_position
-            encoder_position = encoder.value  # Update stored position
-
-            if menu_state == STATE_HOME:
-                selected_index = (selected_index + movement) % 2  # Toggle between 0 (Auto) & 1 (Manual)
-            elif menu_state == STATE_AUTO:
-                if selected_index == 0:  # Adjusting amount
-                    amount = max(0, min(99, amount + movement))
-
-    update_display()
-
-# Button Callback
-def button_callback():
-    global menu_state, selected_index
-
-    with detent_lock:
-        if menu_state == STATE_HOME:
-            if selected_index == 0:
-                menu_state = STATE_AUTO
-                selected_index = 0  # Default selection in Auto mode
-            elif selected_index == 1:
-                menu_state = STATE_MANUAL  # Placeholder for manual mode
-
-        elif menu_state == STATE_AUTO:
-            if selected_index == 0:
-                menu_state = STATE_ADJUST_AMOUNT
+            if in_auto_mode:
+                # Auto Mode Page
+                # Back button in top left
+                draw.text((5, 18), "Back", font=font, fill="white")
+                # Amount in top center
+                draw.text((device.width // 2 - 20, 18), f"Amount: {amount:02}", font=font, fill="white")
+                # Dispense banner at bottom
+                draw.rectangle((0, device.height - 16, device.width, device.height), fill="white")
+                draw.text((device.width // 2 - 30, device.height - 14), "Dispense", font=font, fill="black")
             else:
-                menu_state = STATE_HOME  # Back button pressed
+                # Home Screen
+                for i, item in enumerate(menu_items):
+                    y_pos = i * 20 + 16  # Adjust vertical spacing for menu items
+                    if selected == i:
+                        # Selected item: White box with black text
+                        draw.rectangle((0, y_pos, device.width, y_pos + 18), fill="white")
+                        draw.text((5, y_pos), item, font=font, fill="black")
+                    elif index == i:
+                        # Highlighted item: Add > item <
+                        draw.text((5, y_pos), f"> {item} <", font=font, fill="white")
+                    else:
+                        # Normal items
+                        draw.text((5, y_pos), item, font=font, fill="white")
 
-        elif menu_state == STATE_ADJUST_AMOUNT:
-            menu_state = STATE_AUTO  # Exit amount adjustment
+        time.sleep(0.1)  # Refresh rate
 
-    update_display()
+# Encoder rotation callback for the menu
+def encoder_callback():
+    global current_index, amount, in_auto_mode
+    with detent_lock:
+        if selected_index is None:  # Move through menu only if no item is selected
+            new_index = current_index + (1 if encoder.steps > 0 else -1)
+            if 0 <= new_index < len(menu_items):  # Prevent wrapping
+                current_index = new_index
+        elif in_auto_mode:
+            if selected_index == 1:  # Amount option is selected
+                # Increase or decrease the amount
+                new_amount = amount + (1 if encoder.steps > 0 else -1)
+                if 0 <= new_amount <= 99:  # Prevent wrapping
+                    amount = new_amount
+                    print(f"Amount: {amount:02}")
 
-# Initialize Encoder & Button
-encoder = RotaryEncoder(CLK_PIN, DT_PIN)
-button = Button(SW_PIN)
+# Button press callback for the menu and auto mode
+def button_callback():
+    global selected_index, in_auto_mode, amount
+    with detent_lock:
+        if selected_index is None:  # Select menu item
+            selected_index = current_index
+            if current_index == 0:  # Auto is selected
+                in_auto_mode = True
+            elif current_index == 1:  # Manual is selected (Not implemented yet)
+                pass
+        elif in_auto_mode and selected_index == 1:  # Amount option is selected
+            # Save amount (exiting the selection)
+            selected_index = None
+        else:
+            selected_index = None  # Deselect any selected item
+            in_auto_mode = False  # Go back to Home
+
+# Setup rotary encoder and button
+encoder = RotaryEncoder(CLK_PIN, DT_PIN, wrap=False, max_steps=len(menu_items) - 1)
+button = Button(SW_PIN, pull_up=True, bounce_time=0.05)
 
 encoder.when_rotated = encoder_callback
 button.when_pressed = button_callback
 
-# Start Display
-update_display()
+# Start display update thread
+display_thread = threading.Thread(target=update_display, daemon=True)
+display_thread.start()
 
-# Keep running
 try:
     while True:
-        time.sleep(0.1)
+        time.sleep(1)
 except KeyboardInterrupt:
     print("Exiting...")
