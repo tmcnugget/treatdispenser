@@ -27,7 +27,7 @@ def text(device, text, size, x, y colour):
         font = ImageFont.truetype("font.ttf", size)
         draw.text((x, y), text, font=font, fill=colour)
 
-def button(device, text, size, x, y, inverted, index, lock, id)
+def button(device, text, size, x, y, inverted, index, lock, id):
     selected = 0
     selection = wrap(index, lock)
     if inverted = "false":
