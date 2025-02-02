@@ -18,6 +18,7 @@ device = ssd1306(serial)
 page = "home"
 value = 0
 pressed = 0
+toggled = 0
 
 updated_value = 0
 old_value = 0
@@ -53,7 +54,7 @@ def gui_number(draw, minimum, maximum, size, x, y, index, lock, id, box1, box2):
     
     if selected:
         text(draw, str(updated_value), size, x, y, "black")
-        if pressed:
+        if toggled:
             updated_value = value - old_value
             old_value = value
             updated_value = max(min(updated_value, maximum), minimum)
@@ -82,12 +83,14 @@ def encoder_callback():
 # Button press callback for the menu and auto mode
 def button_callback():
     global pressed
+    global toggled
+    toggle = 1
     pressed = 1
+    time.sleep(0.05)
 
 def button_released_callback():
-    global pressed
-    pressed = 0
-    time.sleep(0.05)
+    global toggled
+    toggled = 0
 
 # Setup rotary encoder and button
 encoder = RotaryEncoder(CLK_PIN, DT_PIN, wrap=False)
