@@ -21,7 +21,7 @@ page = "home"
 def wrap(index, lock):
     return (index % lock) - 1
 
-def text(device, text, size, x, y colour):
+def text(device, text, size, x, y, colour):
     """Function to display text on the OLED display"""
     with canvas(device) as draw:
         font = ImageFont.truetype("font.ttf", size)
