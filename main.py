@@ -1,63 +1,49 @@
-import RPi.GPIO as GPIO
-import time
+from pyky040 import pyky040
 from luma.oled.device import ssd1306
 from luma.core.interface.serial import i2c
 from luma.core.render import canvas
 from PIL import ImageFont
-
-# Pin configuration
-CLK = 17  # Clock pin
-DT = 18   # Data pin
-SW = 27   # Switch pin
-
-# GPIO setup
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(CLK, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(DT, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(SW, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+import time
+import threading
 
 # Initialize OLED display
-serial = i2c(port=1, address=0x3C)  # Ensure address matches your OLED (0x3C is common)
+serial = i2c(port=1, address=0x3C)  # Adjust if needed
 device = ssd1306(serial)
 
-def text(device, text, size, x, y):
-    """Function to display text on the OLED display"""
+# Load font
+FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+FONT_SIZE = 20
+font = ImageFont.truetype(FONT_PATH, FONT_SIZE)
+
+def update_display(text):
+    """Function to display text on the OLED"""
     with canvas(device) as draw:
-        font = ImageFont.truetype("font.ttf", size)
-        draw.text((x, y), text, font=font, fill="white")
+        draw.text((0, 0), text, font=font, fill="white")
 
-# Initialize the display
-device.clear()
-text(device, "Counter: 0", 50, 0, 0)
-device.show()
+# Initialize encoder
+detent = 0
 
-counter = 0
-clkLastState = GPIO.input(CLK)
+def encoder_callback(position):
+    global detent
+    detent = position
+    print(f"Detent: {detent}")
+    update_display(f"Detent: {detent}")
+
+def button_callback():
+    print("Button Pressed")
+
+encoder = pyky040.Encoder(CLK=17, DT=18, SW=27)
+encoder.setup(scale_min=0, scale_max=100, step=1, chg_callback=encoder_callback, sw_callback=button_callback)
+
+# Run encoder in a separate thread
+encoder_thread = threading.Thread(target=encoder.watch, daemon=True)
+encoder_thread.start()
+
+# Initialize display
+update_display("Detent: 0")
 
 try:
     while True:
-        # Read rotation
-        clkState = GPIO.input(CLK)
-        dtState = GPIO.input(DT)
-        if clkState != clkLastState:
-            if dtState != clkState:
-                counter += 1
-            else:
-                counter -= 1
-            print(f"Counter: {counter}")
-
-            # Update OLED display
-            device.clear()
-            text(device, f"Counter: {counter}", 50, 0, 0)
-            device.show()
-
-        clkLastState = clkState
-
-        # Check for button press
-        if GPIO.input(SW) == GPIO.LOW:
-            print("Button Pressed")
-            time.sleep(0.5)  # Debounce delay
-
-        time.sleep(0.01)  # Avoid excessive CPU usage
-finally:
-    GPIO.cleanup()
+        time.sleep(1)  # Keep the script running
+except KeyboardInterrupt:
+    print("Exiting...")
