@@ -19,6 +19,9 @@ page = "home"
 value = 0
 pressed = 0
 
+updated_value = 0
+old_value = 0
+
 def wrap(index, lock):
     return (index % lock) + 1
 
@@ -46,8 +49,7 @@ def gui_number(draw, min, max, size, x, y, index, lock, id, box1, box2):
     selected = (selection == id)
     font = ImageFont.truetype("font.ttf", size)
 
-    updated_value = 0
-    old_value = 0
+    global updated_value, old_value
     
     if selected:
         text(draw, updated_value, size, x, y, "black")
