@@ -82,7 +82,7 @@ def encoder_callback():
             if selected_index == 1:  # Amount option is selected
                 # Increase or decrease the amount
                 new_amount = amount + (1 if encoder.steps > 0 else -1)
-                if 0 <= new_amount <= 99:  # Prevent wrapping
+                if 0 <= new_amount <= 30:  # Prevent wrapping
                     amount = new_amount
                     print(f"Amount: {amount:02}")
 
