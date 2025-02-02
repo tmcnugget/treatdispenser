@@ -41,7 +41,8 @@ def update_display():
 
         with canvas(device) as draw:
             # Top Banner: Treat Vendor (Just Text, No Fill)
-            draw.text((device.width // 2 - 50, 2), "Treat Vendor", font=font, fill="white")
+            if selected_index is None:  # Home mode
+                draw.text((device.width // 2 - 50, 2), "Treat Vendor", font=font, fill="white")
 
             if in_auto_mode:
                 # Auto Mode Page
