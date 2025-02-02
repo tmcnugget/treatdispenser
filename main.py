@@ -44,7 +44,7 @@ def gui_button(draw, text_value, size, x, y, index, lock, id, box1, box2, direct
     else:
         text(draw, text_value, size, x, y, "white")
 
-def gui_number(draw, min, max, size, x, y, index, lock, id, box1, box2):
+def gui_number(draw, minimum, maximum, size, x, y, index, lock, id, box1, box2):
     selection = wrap(index, lock)
     selected = (selection == id)
     font = ImageFont.truetype("font.ttf", size)
@@ -56,7 +56,7 @@ def gui_number(draw, min, max, size, x, y, index, lock, id, box1, box2):
         if pressed:
             updated_value = value - old_value
             old_value = value
-            updated_value = max(min(updated_value, max), min)
+            updated_value = max(min(updated_value, maximum), minimum)
     else:
         text(draw, str(updated_value), size, x, y, "black")
         draw.rectangle([(0, box1), (140, box2)], outline="white", fill="white", width=1)
