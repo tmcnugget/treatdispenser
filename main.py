@@ -42,6 +42,7 @@ def gui_button(draw, text_value, size, x, y, index, lock, id, box1, box2, direct
         text(draw, text_value, size, x, y, "white")
 
 def gui_number(draw, min, max, size, x, y, index, lock, id, box1, box2)
+    font = ImageFont.truetype("font.ttf", size)
     if selected:
         text(draw, updated_value, size, x, y, "black")
         while pressed:
