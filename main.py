@@ -87,7 +87,7 @@ def encoder_callback():
 
 # Button press callback for the menu and auto mode
 def button_callback():
-    global selected_index, in_auto_mode, amount
+    global selected_index, in_auto_mode, amount, current_index
     with detent_lock:
         if selected_index is None:  # Select menu item
             selected_index = current_index
@@ -95,9 +95,12 @@ def button_callback():
                 in_auto_mode = True
             elif current_index == 1:  # Manual is selected (Not implemented yet)
                 pass
-        elif in_auto_mode and selected_index == 1:  # Amount option is selected
-            # Save amount (exiting the selection)
-            selected_index = None
+        elif in_auto_mode:
+            if selected_index == 0:  # "Auto" is selected, you enter the amount mode
+                selected_index = 1  # Move to amount selection
+            elif selected_index == 1:  # Amount is selected, save the value
+                selected_index = None  # De-select and return to Home
+            # Back action if 'back' was selected
         else:
             selected_index = None  # Deselect any selected item
             in_auto_mode = False  # Go back to Home
