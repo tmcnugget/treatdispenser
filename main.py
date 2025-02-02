@@ -40,6 +40,17 @@ def gui_button(draw, text_value, size, x, y, index, lock, id, box1, box2, direct
             page = direct
     else:
         text(draw, text_value, size, x, y, "white")
+
+def gui_number(draw, min, max, size, x, y, index, lock, id, box1, box2)
+    if selected:
+        text(draw, updated_value, size, x, y, "black")
+        while pressed:
+            updated_value = value - old_value
+            old_value = value
+            updated_value = max(min(updated_value, max), min)
+    else:
+        text(draw, updated_value, size, x, y, "black")
+        draw.rectangle([(0, box1), (140, box2)], outline="white", fill="white", width=1)
         
 # Function to render the menu and pages
 def update_display():
@@ -51,6 +62,7 @@ def update_display():
                 gui_button(draw, "Manual", 20, 25, 25, value, 2, 2, 25, 45, "manual")
             if page == "auto":
                 gui_button(draw, "<- Back", 10, 0, 0, value, 3, 1, 0, 10, "home")
+                gui_number(draw, 0, 30, 40, 70, 70, value, 3, 2, 55, 85) 
         time.sleep(0.05)
 
 # Encoder rotation callback for the menu
@@ -62,8 +74,11 @@ def encoder_callback():
 def button_callback():
     global pressed
     pressed = 1
-    time.sleep(0.5)
+
+def button_released_callback():
+    global pressed
     pressed = 0
+    time.sleep(0.05)
 
 # Setup rotary encoder and button
 encoder = RotaryEncoder(CLK_PIN, DT_PIN, wrap=False)
@@ -71,6 +86,7 @@ button = Button(SW_PIN, pull_up=True, bounce_time=0.05)
 
 encoder.when_rotated = encoder_callback
 button.when_pressed = button_callback
+button.when_released = button_released_callback
 
 # Start display update thread
 display_thread = threading.Thread(target=update_display, daemon=True)
