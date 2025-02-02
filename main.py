@@ -2,6 +2,8 @@ import RPi.GPIO as GPIO
 import time
 from luma.oled.device import ssd1306
 from luma.core.interface.serial import i2c
+from luma.core.render import canvas
+from PIL import ImageFont
 
 # Pin configuration
 CLK = 17  # Clock pin
@@ -18,9 +20,15 @@ GPIO.setup(SW, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 serial = i2c(port=1, address=0x3C)  # Ensure address matches your OLED (0x3C is common)
 device = ssd1306(serial)
 
+def text(device, text, size, x, y):
+    """Function to display text on the OLED display"""
+    with canvas(device) as draw:
+        font = ImageFont.truetype("font.ttf", size)
+        draw.text((x, y), text, font=font, fill="white")
+
 # Initialize the display
 device.clear()
-device.text("Counter: 0", 0, 0, fill="white")
+text(device, "Counter: 0", 50, 0, 0)
 device.show()
 
 counter = 0
@@ -40,7 +48,7 @@ try:
 
             # Update OLED display
             device.clear()
-            device.text(f"Counter: {counter}", 0, 0, fill="white")
+            text(device, f"Counter: {counter}", 50, 0, 0)
             device.show()
 
         clkLastState = clkState
