@@ -27,7 +27,7 @@ def text(draw, text, size, x, y, colour):
     font = ImageFont.truetype("font.ttf", size)
     draw.text((x, y), text, font=font, fill=colour)
     
-def gui_button(draw, text_value, size, x, y, index, lock, id, box1, box2):
+def gui_button(draw, text_value, size, x, y, index, lock, id, box1, box2, direct):
     selection = wrap(index, lock)
     selected = (selection == id)
     font = ImageFont.truetype("font.ttf", size)
@@ -35,6 +35,8 @@ def gui_button(draw, text_value, size, x, y, index, lock, id, box1, box2):
     if selected:
         draw.rectangle([(0, box1), (140, box2)], outline="white", fill="white", width=1)
         text(draw, text_value, size, x, y, "black")
+        if pressed:
+            page == direct
     else:
         text(draw, text_value, size, x, y, "white")
         
@@ -44,8 +46,10 @@ def update_display():
         print(value)
         with canvas(device) as draw:
             if page == "home":
-                gui_button(draw, "Auto", 20, 25, 0, value, 2, 1, 0, 20)
-                gui_button(draw, "Manual", 20, 25, 25, value, 2, 2, 25, 45)
+                gui_button(draw, "Auto", 20, 25, 0, value, 2, 1, 0, 20, "auto")
+                gui_button(draw, "Manual", 20, 25, 25, value, 2, 2, 25, 45, "manual")
+            if page == "auto":
+                gui_button(draw, "<- Back", 10, 0, 0, value, 3, 1, 0, 20, "home")
         time.sleep(0.05)
 
 # Encoder rotation callback for the menu
