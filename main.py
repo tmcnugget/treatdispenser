@@ -57,9 +57,6 @@ def update_display(device):
     if page == "home":
         button(device, "Auto", 20, 25, 0, "false", value, 2, 1)
         button(device, "Manual", 20, 25, 25, "false", value, 2, 2)
-    if page == "auto":
-
-    if page == "manual":
 
 # Encoder rotation callback for the menu
 def encoder_callback():
