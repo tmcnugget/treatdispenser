@@ -71,7 +71,7 @@ def update_display():
                 gui_button(draw, "Manual", 20, 25, 25, value, 2, 2, 25, 45, "manual")
             if page == "auto":
                 gui_button(draw, "<- Back", 10, 0, 0, value, 3, 1, 0, 10, "home")
-                gui_number(draw, 0, 30, 40, 70, 70, value, 3, 2, 55, 85) 
+                gui_number(draw, 0, 30, 20, 25, 25, value, 3, 2, 55, 85) 
         time.sleep(0.05)
 
 # Encoder rotation callback for the menu
