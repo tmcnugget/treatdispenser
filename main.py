@@ -30,7 +30,7 @@ def text(device, text, size, x, y, colour):
 def button(device, text, size, x, y, inverted, index, lock, id):
     selected = 0
     selection = wrap(index, lock)
-    if inverted = "false":
+    if inverted == "false":
         if selected:
             text(device, text, size, x, y, "black")
             with canvas(device) as draw:
@@ -39,7 +39,7 @@ def button(device, text, size, x, y, inverted, index, lock, id):
                 draw.rectangle([(x - 2, y - 2), (x + text_width + 2, y + text_height + 2)], outline="white", width=1)
         else:
             text(device, text, size, x, y, "white")
-    elif inverted = "true":
+    elif inverted == "true":
         if selected:
             text(device, text, size, x, y, "white")
         else:
