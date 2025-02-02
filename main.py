@@ -70,7 +70,7 @@ def button_callback():
     button = 0
 
 # Setup rotary encoder and button
-encoder = RotaryEncoder(CLK_PIN, DT_PIN, wrap=False, max_steps=len(menu_items) - 1)
+encoder = RotaryEncoder(CLK_PIN, DT_PIN, wrap=False)
 button = Button(SW_PIN, pull_up=True, bounce_time=0.05)
 
 encoder.when_rotated = encoder_callback
