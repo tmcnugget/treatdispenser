@@ -34,7 +34,7 @@ def gui_button(draw, text_value, size, x, y, index, lock, id):
 
     if selected:
         text(draw, text_value, size, x, y, "black")
-        text_width, text_height = font.getsize(text_value)
+        text_width, text_height = font.getbbox(text_value)
         draw.rectangle([(x - 2, y - 2), (x + text_width + 2, y + text_height + 2)], outline="white", width=1)
     else:
         text(draw, text_value, size, x, y, "white")
