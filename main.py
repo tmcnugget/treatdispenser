@@ -15,10 +15,12 @@ SW_PIN = 27
 serial = i2c(port=1, address=0x3C)  # Adjust if needed
 device = ssd1306(serial)
 
-# Load font
-FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
-FONT_SIZE = 20
-font = ImageFont.truetype(FONT_PATH, FONT_SIZE)
+# Custom text function
+def text(device, text, size, x, y):
+    """Function to display text on the OLED display"""
+    with canvas(device) as draw:
+        font = ImageFont.truetype("font.ttf", size)
+        draw.text((x, y), text, font=font, fill="white")
 
 # Initialize rotary encoder and button
 encoder = RotaryEncoder(CLK_PIN, DT_PIN, wrap=False, max_steps=100)
@@ -34,8 +36,7 @@ def update_display():
         with detent_lock:
             display_text = f"Detent: {detent}"
         
-        with canvas(device) as draw:
-            draw.text((0, 0), display_text, font=font, fill="white")
+        text(device, display_text, 20, 0, 0)  # Using your custom function
         
         time.sleep(0.1)  # Update every 100ms
 
