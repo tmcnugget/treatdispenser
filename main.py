@@ -32,6 +32,9 @@ selected_index = 0  # Tracks selection in home & auto menus
 amount = 0  # Default amount
 detent_lock = threading.Lock()
 
+# Track encoder position manually
+encoder_position = 0
+
 # Function to render menu on OLED
 def update_display():
     with detent_lock:
@@ -53,15 +56,19 @@ def update_display():
             draw.text((25, 60), "Dispense", font=font, fill="white")  # Bottom banner
 
 # Encoder Callback
-def encoder_callback(position):
-    global selected_index, amount, menu_state
+def encoder_callback():
+    global selected_index, amount, menu_state, encoder_position
 
     with detent_lock:
-        if menu_state == STATE_HOME:
-            selected_index = (position % 2)  # Toggle between 0 (Auto) & 1 (Manual)
-        elif menu_state == STATE_AUTO:
-            if selected_index == 0:  # Adjusting amount
-                amount = max(0, min(99, position))
+        if encoder.is_active:
+            movement = encoder.value - encoder_position
+            encoder_position = encoder.value  # Update stored position
+
+            if menu_state == STATE_HOME:
+                selected_index = (selected_index + movement) % 2  # Toggle between 0 (Auto) & 1 (Manual)
+            elif menu_state == STATE_AUTO:
+                if selected_index == 0:  # Adjusting amount
+                    amount = max(0, min(99, amount + movement))
 
     update_display()
 
