@@ -11,56 +11,78 @@ CLK_PIN = 17
 DT_PIN = 18
 SW_PIN = 27
 
-# Initialize OLED display
-serial = i2c(port=1, address=0x3C)  # Adjust if needed
+# OLED Setup
+serial = i2c(port=1, address=0x3C)
 device = ssd1306(serial)
 
-# Custom text function
-def text(device, text, size, x, y):
-    """Function to display text on the OLED display"""
-    with canvas(device) as draw:
-        font = ImageFont.truetype("font.ttf", size)
-        draw.text((x, y), text, font=font, fill="white")
+# Font Setup
+FONT_PATH = "font.ttf"  # Change if needed
+FONT_SIZE = 16
+font = ImageFont.truetype(FONT_PATH, FONT_SIZE)
 
-# Initialize rotary encoder and button
-encoder = RotaryEncoder(CLK_PIN, DT_PIN, wrap=False, max_steps=100)
-button = Button(SW_PIN, pull_up=True, bounce_time=0.05)  # 50ms debounce
+# Menu Items
+menu_items = ["Option 1", "Option 2", "Option 3", "Option 4"]
+current_index = 0  # Tracks menu position
+selected_index = None  # Tracks selected item
 
-# Global detent variable
-detent = 0
 detent_lock = threading.Lock()
 
+# Function to render menu on OLED
 def update_display():
-    """Continuously update the OLED display"""
     while True:
         with detent_lock:
-            display_text = f"Detent: {detent}"
+            index = current_index
+            selected = selected_index
         
-        text(device, display_text, 20, 0, 0)  # Using your custom function
+        with canvas(device) as draw:
+            for i, item in enumerate(menu_items):
+                y_pos = i * 20  # Adjust spacing
+                
+                if selected == i:
+                    # Selected item: Draw white box with black text
+                    draw.rectangle((0, y_pos, device.width, y_pos + 18), fill="white")
+                    draw.text((5, y_pos), item, font=font, fill="black")
+                elif index == i:
+                    # Highlighted item: Just underline it
+                    draw.text((5, y_pos), item, font=font, fill="white")
+                    draw.line((5, y_pos + 17, device.width - 5, y_pos + 17), fill="white")
+                else:
+                    # Normal items
+                    draw.text((5, y_pos), item, font=font, fill="white")
         
-        time.sleep(0.1)  # Update every 100ms
+        time.sleep(0.1)  # Refresh rate
 
+# Encoder rotation callback
 def encoder_callback():
-    """Handles encoder rotation events"""
-    global detent
+    global current_index
     with detent_lock:
-        detent = encoder.steps
-    print(f"Detent: {detent}")
+        if selected_index is None:  # Only allow scrolling if not selected
+            current_index = (current_index + 1) % len(menu_items) if encoder.steps > 0 else (current_index - 1) % len(menu_items)
+    print(f"Menu Position: {current_index}")
 
+# Button press callback
 def button_callback():
-    """Handles button press event"""
-    print("Button Pressed")
+    global selected_index
+    with detent_lock:
+        if selected_index is None:
+            selected_index = current_index  # Select item
+        else:
+            selected_index = None  # Deselect item
+    print(f"Selected Item: {menu_items[current_index]}")
 
-# Attach callbacks
+# Setup rotary encoder and button
+encoder = RotaryEncoder(CLK_PIN, DT_PIN, wrap=True, max_steps=len(menu_items) - 1)
+button = Button(SW_PIN, pull_up=True, bounce_time=0.05)
+
 encoder.when_rotated = encoder_callback
 button.when_pressed = button_callback
 
-# Start display update in a thread
+# Start display update thread
 display_thread = threading.Thread(target=update_display, daemon=True)
 display_thread.start()
 
 try:
     while True:
-        time.sleep(1)  # Keep the script running
+        time.sleep(1)
 except KeyboardInterrupt:
     print("Exiting...")
