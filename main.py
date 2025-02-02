@@ -28,6 +28,7 @@ def text(draw, text, size, x, y, colour):
     draw.text((x, y), text, font=font, fill=colour)
     
 def gui_button(draw, text_value, size, x, y, index, lock, id, box1, box2, direct):
+    global page
     selection = wrap(index, lock)
     selected = (selection == id)
     font = ImageFont.truetype("font.ttf", size)
@@ -61,7 +62,7 @@ def encoder_callback():
 def button_callback():
     global pressed
     pressed = 1
-    time.sleep(0.05)
+    time.sleep(0.5)
     pressed = 0
 
 # Setup rotary encoder and button
