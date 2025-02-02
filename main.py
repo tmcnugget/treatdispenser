@@ -15,48 +15,36 @@ SW_PIN = 27
 serial = i2c(port=1, address=0x3C)
 device = ssd1306(serial)
 
-button = 0
 page = "home"
+value = 0
+pressed = 0
 
 def wrap(index, lock):
-    return (index % lock) - 1
+    return index % lock
 
-def text(device, text, size, x, y, colour):
+def text(draw, text, size, x, y, colour):
     """Function to display text on the OLED display"""
-    with canvas(device) as draw:
-        font = ImageFont.truetype("font.ttf", size)
-        draw.text((x, y), text, font=font, fill=colour)
-
-def button(device, text, size, x, y, inverted, index, lock, id):
-    selected = 0
+    font = ImageFont.truetype("font.ttf", size)
+    draw.text((x, y), text, font=font, fill=colour)
+    
+def gui_button(draw, text_value, size, x, y, index, lock, id):
     selection = wrap(index, lock)
-    if inverted == "false":
-        if selected:
-            text(device, text, size, x, y, "black")
-            with canvas(device) as draw:
-                font = ImageFont.truetype("font.ttf", size)
-                text_width, text_height = draw.textsize(text, font=font)
-                draw.rectangle([(x - 2, y - 2), (x + text_width + 2, y + text_height + 2)], outline="white", width=1)
-        else:
-            text(device, text, size, x, y, "white")
-    elif inverted == "true":
-        if selected:
-            text(device, text, size, x, y, "white")
-        else:
-            text(device, text, size, x, y, "black")
-            with canvas(device) as draw:
-                font = ImageFont.truetype("font.ttf", size)
-                text_width, text_height = draw.textsize(text, font=font)
-                draw.rectangle([(x - 2, y - 2), (x + text_width + 2, y + text_height + 2)], outline="white", width=1)
-            
-    if selection == id:
-        selected = 1   
+    selected = (selection == id)
+    font = ImageFont.truetype("font.ttf", size)
+
+    if selected:
+        text(draw, text_value, size, x, y, "black")
+        text_width, text_height = font.getsize(text_value)
+        draw.rectangle([(x - 2, y - 2), (x + text_width + 2, y + text_height + 2)], outline="white", width=1)
+    else:
+        text(draw, text_value, size, x, y, "white")
         
 # Function to render the menu and pages
-def update_display(device):
-    if page == "home":
-        button(device, "Auto", 20, 25, 0, "false", value, 2, 1)
-        button(device, "Manual", 20, 25, 25, "false", value, 2, 2)
+def update_display():
+    with canvas(device) as draw:
+        if page == "home":
+            gui_button(draw, "Auto", 20, 25, 0, value, 2, 1)
+            gui_button(draw, "Manual", 20, 25, 25, value, 2, 2)
 
 # Encoder rotation callback for the menu
 def encoder_callback():
@@ -65,9 +53,10 @@ def encoder_callback():
 
 # Button press callback for the menu and auto mode
 def button_callback():
-    button = 1
+    global pressed
+    pressed = 1
     time.sleep(0.05)
-    button = 0
+    pressed = 0
 
 # Setup rotary encoder and button
 encoder = RotaryEncoder(CLK_PIN, DT_PIN, wrap=False)
