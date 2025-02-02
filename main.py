@@ -40,11 +40,12 @@ def gui_button(draw, text_value, size, x, y, index, lock, id, box1, box2):
         
 # Function to render the menu and pages
 def update_display():
-    print(value)
-    with canvas(device) as draw:
-        if page == "home":
-            gui_button(draw, "Auto", 20, 25, 0, value, 2, 1, 0, 20)
-            gui_button(draw, "Manual", 20, 25, 25, value, 2, 2, 25, 45)
+    while True:
+        print(value)
+        with canvas(device) as draw:
+            if page == "home":
+                gui_button(draw, "Auto", 20, 25, 0, value, 2, 1, 0, 20)
+                gui_button(draw, "Manual", 20, 25, 25, value, 2, 2, 25, 45)
 
 # Encoder rotation callback for the menu
 def encoder_callback():
