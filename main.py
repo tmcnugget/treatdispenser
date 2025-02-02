@@ -47,12 +47,22 @@ def update_display():
             if in_auto_mode:
                 # Auto Mode Page
                 # Back button in top left
-                draw.text((0, 0), "Home", font=font, fill="white")
+                if index == 1:
+                    draw.text((0, 0), "> Home <", font=font, fill="white")
+                else:
+                    draw.text((0, 0), "Home", font=font, fill="white")
                 # Amount in top center
-                draw.text((device.width // 2 - 20, 18), f"{amount:02}g", font=font, fill="white")
+                if index == 2:
+                    draw.text((device.width // 2 - 20, 18), f"> {amount:02}g <", font=font, fill="white")
+                else:
+                    draw.text((device.width // 2 - 20, 18), f"{amount:02}g", font=font, fill="white")
                 # Dispense banner at bottom
-                draw.rectangle((0, device.height - 16, device.width, device.height), fill="white")
-                draw.text((device.width // 2 - 30, device.height - 18), "Dispense", font=font, fill="black")
+                if index == 3:
+                    draw.rectangle((0, device.height - 16, device.width, device.height), fill="black")
+                    draw.text((device.width // 2 - 30, device.height - 18), "Dispense", font=font, fill="white")
+                else:
+                    draw.rectangle((0, device.height - 16, device.width, device.height), fill="white")
+                    draw.text((device.width // 2 - 30, device.height - 18), "Dispense", font=font, fill="black")
             else:
                 # Home Screen
                 for i, item in enumerate(menu_items):
@@ -68,7 +78,7 @@ def update_display():
                         # Normal items
                         draw.text((device.width // 2 - (len(item) * FONT_SIZE // 2), y_pos), item, font=font, fill="white")
 
-        time.sleep(0.1)  # Refresh rate
+        time.sleep(0.05)  # Refresh rate
 
 # Encoder rotation callback for the menu
 def encoder_callback():
