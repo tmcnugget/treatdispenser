@@ -55,19 +55,17 @@ def update_display():
             else:
                 # Home Screen
                 for i, item in enumerate(menu_items):
-                    # Calculate centered x-coordinate for each menu item
-                    x_pos = device.width // 2 - font.getsize(item)[0] // 2
                     y_pos = i * 20 + 16  # Adjust vertical spacing for menu items
                     if selected == i:
                         # Selected item: White box with black text
                         draw.rectangle((0, y_pos, device.width, y_pos + 18), fill="white")
-                        draw.text((x_pos, y_pos), item, font=font, fill="black")
+                        draw.text((device.width // 2 - (len(item) * FONT_SIZE // 2), y_pos), item, font=font, fill="black")
                     elif index == i:
                         # Highlighted item: Add > item <
-                        draw.text((x_pos, y_pos), f"> {item} <", font=font, fill="white")
+                        draw.text((device.width // 2 - (len(item) * FONT_SIZE // 2), y_pos), f"> {item} <", font=font, fill="white")
                     else:
                         # Normal items
-                        draw.text((x_pos, y_pos), item, font=font, fill="white")
+                        draw.text((device.width // 2 - (len(item) * FONT_SIZE // 2), y_pos), item, font=font, fill="white")
 
         time.sleep(0.1)  # Refresh rate
 
