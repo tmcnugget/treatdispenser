@@ -47,7 +47,7 @@ def update_display():
             if in_auto_mode:
                 # Auto Mode Page
                 # Back button in top left
-                draw.text((5, 18), "Back", font=font, fill="white")
+                draw.text((5, 5), "Back", font=font, fill="white")
                 # Amount in top center
                 draw.text((device.width // 2 - 20, 18), f"Amount: {amount:02}", font=font, fill="white")
                 # Dispense banner at bottom
