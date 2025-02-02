@@ -52,13 +52,13 @@ def gui_number(draw, min, max, size, x, y, index, lock, id, box1, box2):
     global updated_value, old_value
     
     if selected:
-        text(draw, updated_value, size, x, y, "black")
+        text(draw, str(updated_value), size, x, y, "black")
         if pressed:
             updated_value = value - old_value
             old_value = value
             updated_value = max(min(updated_value, max), min)
     else:
-        text(draw, updated_value, size, x, y, "black")
+        text(draw, str(updated_value), size, x, y, "black")
         draw.rectangle([(0, box1), (140, box2)], outline="white", fill="white", width=1)
         
 # Function to render the menu and pages
