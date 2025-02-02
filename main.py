@@ -65,8 +65,9 @@ button = Button(SW_PIN, pull_up=True, bounce_time=0.05)
 encoder.when_rotated = encoder_callback
 button.when_pressed = button_callback
 
-while True:
-    update_display()
+# Start display update thread
+display_thread = threading.Thread(target=update_display, daemon=True)
+display_thread.start()
 
 try:
     while True:
