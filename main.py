@@ -49,7 +49,7 @@ def update_display():
                 # Back button in top left
                 draw.text((5, 5), "Back", font=font, fill="white")
                 # Amount in top center
-                draw.text((device.width // 2 - 20, 18), f"Amount: {amount:02}", font=font, fill="white")
+                draw.text((device.width // 2 - 20, 18), f"{amount:02}", font=font, fill="white")
                 # Dispense banner at bottom
                 draw.rectangle((0, device.height - 16, device.width, device.height), fill="white")
                 draw.text((device.width // 2 - 30, device.height - 14), "Dispense", font=font, fill="black")
