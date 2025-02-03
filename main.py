@@ -65,7 +65,7 @@ def gui_number(draw, minimum, maximum, size, x, y, index, lock, id, box1, box2):
 # Function to render the menu and pages
 def update_display():
     while True:
-        print(value)
+        print(f"{pressed} {toggled}")
         with canvas(device) as draw:
             if page == "home":
                 gui_button(draw, "Auto", 20, 25, 0, value, 2, 1, 0, 20, "auto")
