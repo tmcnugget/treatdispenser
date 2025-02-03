@@ -53,23 +53,20 @@ def draw_button(draw, text_value, size, x, y, index, lock, id, box1, box2, targe
 def draw_number(draw, minimum, maximum, size, x, y, index, lock, id, box1, box2):
     """Displays and allows adjustment of a number value."""
     global number_value, old_number_value, editing_number, pressed
-
     selection = wrap(index, lock)
     selected = (selection == id)
 
     if selected:
-        if editing_number:
-            draw.rectangle([(0, box1), (140, box2)], outline="white", fill="white", width=1)
-            draw_text(draw, str(number_value), size, x, y, "black")  # Highlight in edit mode
-        else:
-            draw_text(draw, str(number_value), size, x, y, "white")
-
+        draw.rectangle([(0, box1), (140, box2)], outline="white", fill="white", width=1)
+        draw_text(draw, str(number_value), size, x, y, "black")  # Highlight in edit mode
         if pressed:
             if editing_number:
                 editing_number = False  # Exit edit mode
             else:
                 editing_number = True  # Enter edit mode
                 old_number_value = number_value  # Store the old value
+    else:
+        draw_text(draw, str(number_value), size, x, y, "white")
 
 # Page rendering functions
 def render_home(draw):
