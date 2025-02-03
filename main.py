@@ -93,14 +93,14 @@ def reset_pressed():
     pressed = 0
     button_handled = False  # Reset when button is released
 
-button.when_pressed = button_callback
-button.when_released = reset_pressed
-
 # Setup rotary encoder and button
 encoder = RotaryEncoder(CLK_PIN, DT_PIN, wrap=False)
 button = Button(SW_PIN, pull_up=True, bounce_time=0.05)
 
 encoder.when_rotated = encoder_callback
+
+button.when_pressed = button_callback
+button.when_released = reset_pressed
 
 # Start display update thread
 display_thread = threading.Thread(target=update_display, daemon=True)
