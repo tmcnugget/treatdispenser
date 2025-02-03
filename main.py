@@ -18,7 +18,6 @@ device = ssd1306(serial)
 page = "home"
 value = 0
 pressed = 0
-toggled = 0
 
 updated_value = 0
 old_value = 0
@@ -83,15 +82,9 @@ def encoder_callback():
 # Button press callback for the menu and auto mode
 def button_callback():
     global pressed
-    global toggled
-    toggle = 1
     pressed = 1
     time.sleep(0.05)
     pressed = 0
-
-def button_released_callback():
-    global toggled
-    toggled = 0
 
 # Setup rotary encoder and button
 encoder = RotaryEncoder(CLK_PIN, DT_PIN, wrap=False)
@@ -99,7 +92,6 @@ button = Button(SW_PIN, pull_up=True, bounce_time=0.05)
 
 encoder.when_rotated = encoder_callback
 button.when_pressed = button_callback
-button.when_released = button_released_callback
 
 # Start display update thread
 display_thread = threading.Thread(target=update_display, daemon=True)
