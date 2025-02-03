@@ -60,10 +60,9 @@ def draw_number(draw, minimum, maximum, size, x, y, index, lock, id, box1, box2)
     if selected:
         if editing_number:
             draw.rectangle([(0, box1), (140, box2)], outline="white", fill="white", width=1)
-            draw_text(draw, f"[{number_value}]", size, x, y, "black")  # Highlight in edit mode
+            draw_text(draw, str(number_value), size, x, y, "black")  # Highlight in edit mode
         else:
             draw_text(draw, str(number_value), size, x, y, "white")
-            draw.rectangle([(0, box1), (140, box2)], outline="white", fill="white", width=1)
 
         if pressed:
             if editing_number:
@@ -81,7 +80,11 @@ def render_home(draw):
 def render_auto(draw):
     """Renders the auto settings page."""
     draw_button(draw, "<- Back", 10, 0, 0, value, 3, 1, 0, 10, "home")
-    draw_number(draw, 0, 30, 20, 25, 25, value, 3, 2, 55, 85)
+    draw_number(draw, 0, 30, 30, 25, 25, value, 3, 2, 55, 85)
+    draw_button(draw, "GO!", 20, 50, 50, value, 3, 3, 50, 70, "dispense")
+
+def render_dispense(draw):
+    draw_button(draw, "Treats Dispensing", 40, 35, 35, value, 1, 1, 35, 75, "home")
 
 # Main display update loop
 def update_display():
@@ -92,6 +95,8 @@ def update_display():
                 render_home(draw)
             elif page == "auto":
                 render_auto(draw)
+            elif page == "dispense":
+                render_dispense(draw)
         time.sleep(0.05)
 
 # Encoder rotation callback
