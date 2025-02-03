@@ -83,7 +83,7 @@ def encoder_callback():
 def button_callback():
     global pressed
     pressed = 1
-    time.sleep(0.05)
+    time.sleep(0.1)
     pressed = 0
 
 # Setup rotary encoder and button
