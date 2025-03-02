@@ -24,17 +24,17 @@ def purgeMotor():
     while True:
         if not is_purging:  # Check if purging is still enabled
             break
-        else:    
+        else:
             motor.onestep(direction=stepper.BACKWARD, style=stepper.DOUBLE)
             time.sleep(0.001)  # Small delay for motor stepping speed
 
 def dispenseMotor():
-    for _ in range(1000):
+    for _ in range(100):
         motor.onestep(direction=stepper.BACKWARD, style=stepper.DOUBLE)
-        time.sleep(0.001)
-        
+        time.sleep(0.01)
+
 def redactMotor():
-    for _ in range(1000):
+    for _ in range(100):
         motor.onestep(direction=stepper.FORWARD, style=stepper.MICROSTEP)
         time.sleep(0.001)
 
