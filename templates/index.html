@@ -28,7 +28,7 @@
             for (let hour = 6; hour <= 21; hour++) {
                 let label = `${hour}:00`;
                 labels.push(label);
-                values.push(log[label] || 0);
+                values.push(log[label] || 0);  // Only 0 or 1
             }
 
             activityChart.data.labels = labels;
@@ -42,15 +42,18 @@
             data: {
                 labels: [],
                 datasets: [{
-                    label: 'Dispenses',
+                    label: 'Treat Dispensed',
                     data: [],
                     backgroundColor: 'rgba(255, 255, 255, 0.8)',
                 }]
             },
             options: {
                 scales: {
-                    x: { title: { display: true, text: 'Time' } },
-                    y: { beginAtZero: true }
+                    x: { title: { display: true, text: 'Time (06:00 - 21:00)' } },
+                    y: { 
+                        min: 0, max: 1, 
+                        ticks: { stepSize: 1 }  // Only 0 or 1
+                    }
                 }
             }
         });
