@@ -1,15 +1,17 @@
 import json
+import os
 from adafruit_motorkit import MotorKit
 from adafruit_motor import stepper
 import time
 from flask import Flask, render_template, jsonify
 from datetime import datetime
 from threading import Thread
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 
 # File path for activity log
-log_file_path = "activity_log.json"
+LOG_FILE_PATH = "activity_log.json"
 
 is_purging = False
 
@@ -19,19 +21,34 @@ kit = MotorKit()
 # Select stepper motor 1 (M1, M2, M3, M4)
 motor = kit.stepper1
 
-def save_log_to_file():
-    """Save activity log to the JSON file."""
-    with open(log_file_path, "w") as f:
-        json.dump(activity_log, f)
-
 def load_log_from_file():
-    """Load activity log from the JSON file."""
-    try:
-        with open(log_file_path, "r") as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):  # Catch file not found or invalid JSON
-        # Return a fresh log structure if the file is invalid or doesn't exist
-        return {"date": "", "dispense": {}, "redact": {}, "purge": {}}
+    """Load activity log data from the JSON file."""
+    if os.path.exists(LOG_FILE_PATH):
+        with open(LOG_FILE_PATH, "r") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                # In case of corrupted or empty JSON, return an empty structure
+                return {
+                    "date": "",
+                    "dispense": {},
+                    "redact": {},
+                    "purge": {}
+                }
+    else:
+        # If file doesn't exist, return the default structure
+        return {
+            "date": "",
+            "dispense": {},
+            "redact": {},
+            "purge": {}
+        }
+
+def save_log_to_file():
+    """Save the current activity log data to the JSON file."""
+    with open(LOG_FILE_PATH, "w") as f:
+        json.dump(activity_log, f, indent=4)
+
 
 # Load the activity log when the server starts
 activity_log = load_log_from_file()
@@ -61,6 +78,7 @@ def log_event(event_type):
         activity_log[event_type][now] += 1
     else:
         activity_log[event_type][now] = 1
+    save_log_to_file()  # Save log to file after each event
 
 @app.route("/")
 def index():
@@ -107,17 +125,26 @@ def get_log():
     return jsonify(activity_log)
 
 def reset_log():
-    """Reset the activity log if it's a new day."""
+    """Reset the activity log for the new day."""
+    global activity_log
     current_date = datetime.now().strftime("%Y-%m-%d")
-    last_saved_date = activity_log.get("date", "")
-    
-    if current_date != last_saved_date:
-        activity_log["date"] = current_date
-        activity_log["dispense"] = {}
-        activity_log["redact"] = {}
-        activity_log["purge"] = {}
-        save_log_to_file()
+    # Reset activity log if date changes
+    if activity_log["date"] != current_date:
+        activity_log = {
+            "date": current_date,
+            "dispense": {},
+            "redact": {},
+            "purge": {}
+        }
+        save_log_to_file()  # Save the reset log to file
+
+# Periodically reset the log
+def schedule_log_reset():
+    """Schedule a reset of the activity log at midnight."""
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(reset_log, 'cron', hour=0, minute=0)
+    scheduler.start()
 
 if __name__ == "__main__":
-    reset_log()
+    schedule_log_reset()  # Start the scheduled reset for the log
     app.run(host="0.0.0.0", port=5000)
