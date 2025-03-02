@@ -78,38 +78,18 @@ def redactMotor():
         time.sleep(0.001)
 
 def log_event(action, request):
+    global activity_log  # Ensure we are modifying the global activity_log
     user_ip = request.remote_addr
     name_mapping = {"192.168.1.52": "Gray"}  # Example mapping
     user_name = name_mapping.get(user_ip, user_ip)
 
-    log_file = "activity_log.json"
-
-    # If the file doesn't exist, create a new one
-    if not os.path.exists(log_file):
-        log = {
-            "date": datetime.now().strftime("%Y-%m-%d"),
-            "dispense": {},
-            "redact": {},
-            "purge": {}
-        }
-    else:
-        with open(log_file, "r") as file:
-            try:
-                log = json.load(file)
-            except json.JSONDecodeError:
-                log = {}
-
-    current_date = datetime.now().strftime("%Y-%m-%d")
-
-    # If the date is missing or outdated, reset the log
-    if log.get("date") != current_date:
-        log = {"date": current_date, "dispense": {}, "redact": {}, "purge": {}}
-
     time_key = datetime.now().strftime("%H:%M")
-    log.setdefault(action, {}).setdefault(time_key, []).append({"ip": user_ip, "name": user_name})
+    
+    # Log the action (dispense, redact, or purge)
+    activity_log.setdefault(action, {}).setdefault(time_key, []).append({"ip": user_ip, "name": user_name})
 
-    with open(log_file, "w") as file:
-        json.dump(log, file, indent=4)
+    # Save log to file
+    save_log_to_file()
 
 @app.route("/")
 def index():
@@ -120,14 +100,14 @@ def dispense():
     log_event("dispense", request)
     dispense_thread = Thread(target=dispenseMotor)
     dispense_thread.start()
-    return jsonify(log=activity_log)
+    return jsonify(activity_log=activity_log)
 
 @app.route("/redact", methods=["POST"])
 def redact():
     log_event("redact", request)
     redact_thread = Thread(target=redactMotor)
     redact_thread.start()
-    return jsonify(log=activity_log)
+    return jsonify(activity_log=activity_log)
 
 @app.route("/purge_start", methods=["POST"])
 def purge_start():
@@ -136,13 +116,13 @@ def purge_start():
     log_event("purge", request)
     purge_thread = Thread(target=purgeMotor)
     purge_thread.start()
-    return jsonify(log=activity_log)
+    return jsonify(activity_log=activity_log)
 
 @app.route("/purge_stop", methods=["POST"])
 def purge_stop():
     global is_purging
     is_purging = False
-    return jsonify(log=activity_log)
+    return jsonify(activity_log=activity_log)
 
 @app.route("/release", methods=["POST"])
 def release():
