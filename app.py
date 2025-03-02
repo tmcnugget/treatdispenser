@@ -1,38 +1,38 @@
 from flask import Flask, render_template, jsonify
-import datetime
+from datetime import datetime
 
 app = Flask(__name__)
+activity_log = {}
 
-# Store dispense times (hour:minute)
-dispense_log = {}
+def log_event(event_type):
+    now = datetime.now().strftime("%H:%M")
+    if now in activity_log:
+        activity_log[now] += 1
+    else:
+        activity_log[now] = 1
 
-def dispense_treat():
-    """Mock function to dispense a treat."""
-    print("Treat Dispensed!")
+@app.route("/")
+def index():
+    return render_template("index.html")
 
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-@app.route('/dispense', methods=['POST'])
+@app.route("/dispense", methods=["POST"])
 def dispense():
-    """Handles the dispense button press."""
-    now = datetime.datetime.now()
-    time_label = now.strftime("%H:%M")
+    log_event("dispense")
+    return jsonify(log=activity_log)
 
-    if "06:00" <= time_label <= "21:00":  # Only log within time range
-        if time_label in dispense_log:
-            dispense_log[time_label] += 1  # Increase count if within the same minute
-        else:
-            dispense_log[time_label] = 1
+@app.route("/redact", methods=["POST"])
+def redact():
+    log_event("redact")
+    return jsonify(log=activity_log)
 
-    dispense_treat()
-    return jsonify(success=True, log=dispense_log)
+@app.route("/purge", methods=["POST"])
+def purge():
+    log_event("purge")
+    return jsonify(log=activity_log)
 
-@app.route('/get_log')
+@app.route("/get_log", methods=["GET"])
 def get_log():
-    """Returns the dispense log for the activity graph."""
-    return jsonify(dispense_log)
+    return jsonify(activity_log)
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
