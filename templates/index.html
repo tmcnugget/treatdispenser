@@ -24,15 +24,21 @@
         function updateGraph(log) {
             let labels = [];
             let values = [];
+            let maxY = 1;  // Default Y-axis max value
 
             for (let hour = 6; hour <= 21; hour++) {
-                let label = `${hour}:00`;
-                labels.push(label);
-                values.push(log[label] || 0);  // Only 0 or 1
+                for (let minute = 0; minute < 60; minute++) {
+                    let label = `${hour}:${minute < 10 ? "0" : ""}${minute}`;
+                    labels.push(label);
+                    let count = log[label] || 0;
+                    values.push(count);
+                    if (count > maxY) maxY = count;
+                }
             }
 
             activityChart.data.labels = labels;
             activityChart.data.datasets[0].data = values;
+            activityChart.options.scales.y.max = maxY + 1;  // Adjust Y-axis
             activityChart.update();
         }
 
@@ -42,7 +48,7 @@
             data: {
                 labels: [],
                 datasets: [{
-                    label: 'Treat Dispensed',
+                    label: 'Treats Dispensed',
                     data: [],
                     backgroundColor: 'rgba(255, 255, 255, 0.8)',
                 }]
@@ -51,8 +57,8 @@
                 scales: {
                     x: { title: { display: true, text: 'Time (06:00 - 21:00)' } },
                     y: { 
-                        min: 0, max: 1, 
-                        ticks: { stepSize: 1 }  // Only 0 or 1
+                        beginAtZero: true, 
+                        ticks: { stepSize: 1 }  // Integer increments
                     }
                 }
             }
