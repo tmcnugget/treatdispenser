@@ -117,14 +117,14 @@ def index():
 
 @app.route("/dispense", methods=["POST"])
 def dispense():
-    log_event("dispense")
+    log_event("dispense", request)
     dispense_thread = Thread(target=dispenseMotor)
     dispense_thread.start()
     return jsonify(log=activity_log)
 
 @app.route("/redact", methods=["POST"])
 def redact():
-    log_event("redact")
+    log_event("redact", request)
     redact_thread = Thread(target=redactMotor)
     redact_thread.start()
     return jsonify(log=activity_log)
@@ -133,7 +133,7 @@ def redact():
 def purge_start():
     global is_purging
     is_purging = True
-    log_event("purge")
+    log_event("purge", request)
     purge_thread = Thread(target=purgeMotor)
     purge_thread.start()
     return jsonify(log=activity_log)
