@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treat Vendor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Treat Vendor</h1>
+        <button id="dispense-btn">Dispense</button>
+        <canvas id="activityChart"></canvas>
+    </div>
+
+    <script>
+        document.getElementById("dispense-btn").addEventListener("click", function() {
+            fetch('/dispense', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => updateGraph(data.log));
+        });
+
+        function updateGraph(log) {
+            let labels = [];
+            let values = [];
+
+            for (let hour = 6; hour <= 21; hour++) {
+                let label = `${hour}:00`;
+                labels.push(label);
+                values.push(log[label] || 0);
+            }
+
+            activityChart.data.labels = labels;
+            activityChart.data.datasets[0].data = values;
+            activityChart.update();
+        }
+
+        let ctx = document.getElementById('activityChart').getContext('2d');
+        let activityChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Dispenses',
+                    data: [],
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                }]
+            },
+            options: {
+                scales: {
+                    x: { title: { display: true, text: 'Time' } },
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        fetch('/get_log')
+            .then(response => response.json())
+            .then(data => updateGraph(data));
+    </script>
+</body>
+</html>
