@@ -1,3 +1,4 @@
+import json
 from adafruit_motorkit import MotorKit
 from adafruit_motor import stepper
 import time
@@ -28,8 +29,9 @@ def load_log_from_file():
     try:
         with open(log_file_path, "r") as f:
             return json.load(f)
-    except FileNotFoundError:
-        return {"dispense": {}, "redact": {}, "purge": {}}
+    except (FileNotFoundError, json.JSONDecodeError):  # Catch file not found or invalid JSON
+        # Return a fresh log structure if the file is invalid or doesn't exist
+        return {"date": "", "dispense": {}, "redact": {}, "purge": {}}
 
 # Load the activity log when the server starts
 activity_log = load_log_from_file()
@@ -104,5 +106,18 @@ def release():
 def get_log():
     return jsonify(activity_log)
 
+def reset_log():
+    """Reset the activity log if it's a new day."""
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    last_saved_date = activity_log.get("date", "")
+    
+    if current_date != last_saved_date:
+        activity_log["date"] = current_date
+        activity_log["dispense"] = {}
+        activity_log["redact"] = {}
+        activity_log["purge"] = {}
+        save_log_to_file()
+
 if __name__ == "__main__":
+    reset_log()
     app.run(host="0.0.0.0", port=5000)
