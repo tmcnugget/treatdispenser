@@ -7,6 +7,7 @@ activity_log = {
     "redact": {},
     "purge": {}
 }
+is_purging = False
 
 def log_event(event_type):
     now = datetime.now().strftime("%H:%M")
@@ -29,10 +30,24 @@ def redact():
     log_event("redact")
     return jsonify(log=activity_log)
 
-@app.route("/purge", methods=["POST"])
-def purge():
+@app.route("/purge_start", methods=["POST"])
+def purge_start():
+    global is_purging
+    is_purging = True
     log_event("purge")
     return jsonify(log=activity_log)
+
+@app.route("/purge_stop", methods=["POST"])
+def purge_stop():
+    global is_purging
+    is_purging = False
+    return jsonify(log=activity_log)
+
+@app.route("/release", methods=["POST"])
+def release():
+    # Code to release motors to save battery
+    print("Releasing motors...")
+    return jsonify(message="Motors Released")
 
 @app.route("/get_log", methods=["GET"])
 def get_log():
