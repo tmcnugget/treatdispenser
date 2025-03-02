@@ -2,14 +2,18 @@ from flask import Flask, render_template, jsonify
 from datetime import datetime
 
 app = Flask(__name__)
-activity_log = {}
+activity_log = {
+    "dispense": {},
+    "redact": {},
+    "purge": {}
+}
 
 def log_event(event_type):
     now = datetime.now().strftime("%H:%M")
-    if now in activity_log:
-        activity_log[now] += 1
+    if now in activity_log[event_type]:
+        activity_log[event_type][now] += 1
     else:
-        activity_log[now] = 1
+        activity_log[event_type][now] = 1
 
 @app.route("/")
 def index():
