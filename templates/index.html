@@ -24,21 +24,25 @@
         function updateGraph(log) {
             let labels = [];
             let values = [];
-            let maxY = 1;  // Default Y-axis max value
+            let maxY = 1;
 
-            for (let hour = 6; hour <= 21; hour++) {
+            for (let hour = 6; hour <= 21; hour++) {  // Show every hour
+                let label = `${hour}:00`;
+                labels.push(label);
+                let count = 0;
+
                 for (let minute = 0; minute < 60; minute++) {
-                    let label = `${hour}:${minute < 10 ? "0" : ""}${minute}`;
-                    labels.push(label);
-                    let count = log[label] || 0;
-                    values.push(count);
-                    if (count > maxY) maxY = count;
+                    let timeLabel = `${hour}:${minute < 10 ? "0" : ""}${minute}`;
+                    count += log[timeLabel] || 0;  // Sum all treats dispensed in that hour
                 }
+
+                values.push(count);
+                if (count > maxY) maxY = count;
             }
 
             activityChart.data.labels = labels;
             activityChart.data.datasets[0].data = values;
-            activityChart.options.scales.y.max = maxY + 1;  // Adjust Y-axis
+            activityChart.options.scales.y.max = maxY + 1;
             activityChart.update();
         }
 
@@ -48,17 +52,22 @@
             data: {
                 labels: [],
                 datasets: [{
-                    label: 'Treats Dispensed',
+                    label: 'Treats Dispensed Per Hour',
                     data: [],
                     backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    barPercentage: 1.0,
+                    categoryPercentage: 0.8
                 }]
             },
             options: {
                 scales: {
-                    x: { title: { display: true, text: 'Time (06:00 - 21:00)' } },
+                    x: { 
+                        title: { display: true, text: 'Time (06:00 - 21:00)' },
+                        ticks: { autoSkip: false, maxTicksLimit: 16 }  // Show every hour
+                    },
                     y: { 
                         beginAtZero: true, 
-                        ticks: { stepSize: 1 }  // Integer increments
+                        ticks: { stepSize: 1 }  
                     }
                 }
             }
