@@ -21,15 +21,28 @@
     </div>
 
     <script>
+        let isPurging = false;
+
         function sendAction(action) {
             fetch(`/${action}`, { method: 'POST' })
                 .then(response => response.json())
                 .then(data => updateGraph(data.log));
         }
 
+        function togglePurge() {
+            isPurging = !isPurging;
+            const purgeButton = document.getElementById("purge-btn");
+            purgeButton.textContent = isPurging ? "Stop Purge" : "Purge";
+            sendAction(isPurging ? "purge_start" : "purge_stop");
+        }
+
+        function releaseMotors() {
+            sendAction("release");
+        }
+
         document.getElementById("dispense-btn").addEventListener("click", () => sendAction("dispense"));
         document.getElementById("redact-btn").addEventListener("click", () => sendAction("redact"));
-        document.getElementById("purge-btn").addEventListener("click", () => sendAction("purge"));
+        document.getElementById("purge-btn").addEventListener("click", togglePurge);
 
         function updateGraph(log) {
             let labels = [];
@@ -104,6 +117,13 @@
         fetch('/get_log')
             .then(response => response.json())
             .then(data => updateGraph(data));
+
+        // Release motor function if no button is pressed
+        setInterval(() => {
+            if (!isPurging && !document.getElementById("dispense-btn").clicked && !document.getElementById("redact-btn").clicked) {
+                releaseMotors();
+            }
+        }, 1000);  // Check every second
     </script>
 </body>
 </html>
