@@ -3,7 +3,7 @@ import os
 from adafruit_motorkit import MotorKit
 from adafruit_motor import stepper
 import time
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from datetime import datetime
 from threading import Thread
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -78,15 +78,28 @@ def redactMotor():
         time.sleep(0.001)
 
 def log_event(event_type):
-    now = datetime.now().strftime("%H:%M")
     user_ip = request.remote_addr
-    user_name = IP_TO_NAME.get(user_ip, user_ip)
+    name_mapping = {"192.168.1.52": "Gray"}  # Example mapping
+    user_name = name_mapping.get(user_ip, user_ip)
 
-    if now not in activity_log[event_type]:
-        activity_log[event_type][now] = []
+    with open("activity_log.json", "r+") as file:
+        try:
+            log = json.load(file)
+        except json.JSONDecodeError:
+            log = {}
 
-    activity_log[event_type][now].append({"ip": user_ip, "name": user_name})
-    save_log_to_file()
+        current_date = datetime.now().strftime("%Y-%m-%d")
+
+        # If the date is missing or outdated, reset the log
+        if log.get("date") != current_date:
+            log = {"date": current_date, "dispense": {}, "redact": {}, "purge": {}}
+
+        time_key = datetime.now().strftime("%H:%M")
+        log.setdefault(action, {}).setdefault(time_key, []).append({"ip": user_ip, "name": user_name})
+
+        file.seek(0)
+        json.dump(log, file, indent=4)
+        file.truncate()
 
 @app.route("/")
 def index():
