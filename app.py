@@ -21,6 +21,11 @@ kit = MotorKit()
 # Select stepper motor 1 (M1, M2, M3, M4)
 motor = kit.stepper1
 
+IP_TO_NAME = {
+    "192.168.1.52": "Gray",
+    "192.168.1.100": "Guest"
+}
+
 def load_log_from_file():
     """Load activity log data from the JSON file."""
     if os.path.exists(LOG_FILE_PATH):
@@ -74,11 +79,14 @@ def redactMotor():
 
 def log_event(event_type):
     now = datetime.now().strftime("%H:%M")
-    if now in activity_log[event_type]:
-        activity_log[event_type][now] += 1
-    else:
-        activity_log[event_type][now] = 1
-    save_log_to_file()  # Save log to file after each event
+    user_ip = request.remote_addr
+    user_name = IP_TO_NAME.get(user_ip, user_ip)
+
+    if now not in activity_log[event_type]:
+        activity_log[event_type][now] = []
+
+    activity_log[event_type][now].append({"ip": user_ip, "name": user_name})
+    save_log_to_file()
 
 @app.route("/")
 def index():
