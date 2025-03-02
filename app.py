@@ -77,29 +77,39 @@ def redactMotor():
         motor.onestep(direction=stepper.FORWARD, style=stepper.MICROSTEP)
         time.sleep(0.001)
 
-def log_event(event_type):
+def log_event(action, request):
     user_ip = request.remote_addr
     name_mapping = {"192.168.1.52": "Gray"}  # Example mapping
     user_name = name_mapping.get(user_ip, user_ip)
 
-    with open("activity_log.json", "r+") as file:
-        try:
-            log = json.load(file)
-        except json.JSONDecodeError:
-            log = {}
+    log_file = "activity_log.json"
 
-        current_date = datetime.now().strftime("%Y-%m-%d")
+    # If the file doesn't exist, create a new one
+    if not os.path.exists(log_file):
+        log = {
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "dispense": {},
+            "redact": {},
+            "purge": {}
+        }
+    else:
+        with open(log_file, "r") as file:
+            try:
+                log = json.load(file)
+            except json.JSONDecodeError:
+                log = {}
 
-        # If the date is missing or outdated, reset the log
-        if log.get("date") != current_date:
-            log = {"date": current_date, "dispense": {}, "redact": {}, "purge": {}}
+    current_date = datetime.now().strftime("%Y-%m-%d")
 
-        time_key = datetime.now().strftime("%H:%M")
-        log.setdefault(action, {}).setdefault(time_key, []).append({"ip": user_ip, "name": user_name})
+    # If the date is missing or outdated, reset the log
+    if log.get("date") != current_date:
+        log = {"date": current_date, "dispense": {}, "redact": {}, "purge": {}}
 
-        file.seek(0)
+    time_key = datetime.now().strftime("%H:%M")
+    log.setdefault(action, {}).setdefault(time_key, []).append({"ip": user_ip, "name": user_name})
+
+    with open(log_file, "w") as file:
         json.dump(log, file, indent=4)
-        file.truncate()
 
 @app.route("/")
 def index():
