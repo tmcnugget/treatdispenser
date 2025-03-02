@@ -98,13 +98,11 @@ let activityChart = new Chart(ctx, {
 });
 
 fetch('/get_log')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("Network response was not ok");
-        }
-        return response.json();
+    .then(response => response.json())  // Parse the JSON response
+    .then(data => {
+        console.log("Fetched data:", data);  // Log the entire data object to inspect its structure
+        updateGraph(data.log);  // Adjust this based on the actual structure of the data
     })
-    .then(data => updateGraph(data.activity_log)) // Adjusted based on the actual log structure
     .catch(error => console.error("Error fetching log:", error));
 
 document.getElementById("activityChart").addEventListener("contextmenu", function (e) {
