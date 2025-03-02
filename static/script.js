@@ -38,9 +38,11 @@ function updateGraph(log) {
         // Loop through each minute of the hour
         for (let minute = 0; minute < 60; minute++) {
             let timeLabel = `${hour}:${minute < 10 ? "0" : ""}${minute}`;
-            dispenseCount += log["dispense"][timeLabel] || 0;
-            redactCount += log["redact"][timeLabel] || 0;
-            purgeCount += log["purge"][timeLabel] || 0;
+
+            // Safely access the count for each action (dispense, redact, purge)
+            dispenseCount += (log["dispense"][timeLabel] || []).length;
+            redactCount += (log["redact"][timeLabel] || []).length;
+            purgeCount += (log["purge"][timeLabel] || []).length;
         }
 
         dispenseData.push(dispenseCount);
@@ -102,14 +104,8 @@ fetch('/get_log')
         }
         return response.json();
     })
-    .then(data => updateGraph(data))
+    .then(data => updateGraph(data.activity_log)) // Adjusted based on the actual log structure
     .catch(error => console.error("Error fetching log:", error));
-
-setInterval(() => {
-    if (!isPurging) {
-        releaseMotors();
-    }
-}, 1000);
 
 document.getElementById("activityChart").addEventListener("contextmenu", function (e) {
     e.preventDefault();
