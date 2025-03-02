@@ -4,7 +4,7 @@ import datetime
 app = Flask(__name__)
 
 # Store dispense times
-dispense_log = {}
+dispense_log = {f"{hour:02d}:00": 0 for hour in range(6, 22)}  # Initialize 06:00 - 21:00
 
 def dispense_treat():
     """Mock function to dispense a treat."""
@@ -18,10 +18,10 @@ def home():
 def dispense():
     """Handles the dispense button press."""
     now = datetime.datetime.now()
-    hour_minute = now.strftime("%H:%M")
+    time_label = now.strftime("%H:00")
 
-    if 6 <= now.hour <= 21:  # Only log between 06:00 - 21:00
-        dispense_log[hour_minute] = dispense_log.get(hour_minute, 0) + 1
+    if "06:00" <= time_label <= "21:00":  # Only update log within time range
+        dispense_log[time_label] = 1  # Mark as dispensed at that hour
 
     dispense_treat()
     return jsonify(success=True, log=dispense_log)
