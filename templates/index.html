@@ -10,30 +10,40 @@
 <body>
     <div class="container">
         <h1>Treat Vendor</h1>
-        <button id="dispense-btn">Dispense</button>
+
+        <!-- Graph at the top -->
         <canvas id="activityChart"></canvas>
+
+        <!-- Buttons -->
+        <button id="dispense-btn">Dispense</button>
+        <button id="redact-btn">Redact</button>
+        <button id="purge-btn">Purge</button>
     </div>
 
     <script>
-        document.getElementById("dispense-btn").addEventListener("click", function() {
-            fetch('/dispense', { method: 'POST' })
+        function sendAction(action) {
+            fetch(`/${action}`, { method: 'POST' })
                 .then(response => response.json())
                 .then(data => updateGraph(data.log));
-        });
+        }
+
+        document.getElementById("dispense-btn").addEventListener("click", () => sendAction("dispense"));
+        document.getElementById("redact-btn").addEventListener("click", () => sendAction("redact"));
+        document.getElementById("purge-btn").addEventListener("click", () => sendAction("purge"));
 
         function updateGraph(log) {
             let labels = [];
             let values = [];
             let maxY = 1;
 
-            for (let hour = 6; hour <= 21; hour++) {  // Show every hour
+            for (let hour = 6; hour <= 21; hour++) {
                 let label = `${hour}:00`;
                 labels.push(label);
                 let count = 0;
 
                 for (let minute = 0; minute < 60; minute++) {
                     let timeLabel = `${hour}:${minute < 10 ? "0" : ""}${minute}`;
-                    count += log[timeLabel] || 0;  // Sum all treats dispensed in that hour
+                    count += log[timeLabel] || 0;
                 }
 
                 values.push(count);
@@ -52,7 +62,7 @@
             data: {
                 labels: [],
                 datasets: [{
-                    label: 'Treats Dispensed Per Hour',
+                    label: 'Treats Dispensed / Actions',
                     data: [],
                     backgroundColor: 'rgba(255, 255, 255, 0.8)',
                     barPercentage: 1.0,
@@ -61,14 +71,8 @@
             },
             options: {
                 scales: {
-                    x: { 
-                        title: { display: true, text: 'Time (06:00 - 21:00)' },
-                        ticks: { autoSkip: false, maxTicksLimit: 16 }  // Show every hour
-                    },
-                    y: { 
-                        beginAtZero: true, 
-                        ticks: { stepSize: 1 }  
-                    }
+                    x: { title: { display: true, text: 'Time (06:00 - 21:00)' }},
+                    y: { beginAtZero: true, ticks: { stepSize: 1 }}
                 }
             }
         });
