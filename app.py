@@ -19,7 +19,7 @@ kit = MotorKit()
 # Select stepper motor 1 (M1, M2, M3, M4)
 motor = kit.stepper1
 
-def purge_motor():
+def purgeMotor():
     """Function to move the motor in backward steps during purging"""
     while True:
         if not is_purging:  # Check if purging is still enabled
@@ -27,6 +27,16 @@ def purge_motor():
         else:    
             motor.onestep(direction=stepper.BACKWARD, style=stepper.DOUBLE)
             time.sleep(0.001)  # Small delay for motor stepping speed
+
+def dispenseMotor():
+    for _ in range(1000):
+        motor.onestep(direction=stepper.BACKWARD, style=stepper.DOUBLE)
+        time.sleep(0.001)
+        
+def redactMotor():
+    for _ in range(1000):
+        motor.onestep(direction=stepper.FORWARD, style=stepper.MICROSTEP)
+        time.sleep(0.001)
 
 def log_event(event_type):
     now = datetime.now().strftime("%H:%M")
@@ -43,17 +53,15 @@ def index():
 def dispense():
     log_event("dispense")
     return jsonify(log=activity_log)
-    for _ in range(1000):
-        motor.onestep(direction=stepper.BACKWARD, style=stepper.DOUBLE)
-        time.sleep(0.001)
+    dispense_thread = Thread(target=dispenseMotor)
+    dispense_thread.start()
 
 @app.route("/redact", methods=["POST"])
 def redact():
     log_event("redact")
     return jsonify(log=activity_log)
-    for _ in range(1000):
-        motor.onestep(direction=stepper.FORWARD, style=stepper.MICROSTEP)
-        time.sleep(0.001)
+    redact_thread = Thread(target=redactMotor)
+    redact_thread.start()
 
 @app.route("/purge_start", methods=["POST"])
 def purge_start():
