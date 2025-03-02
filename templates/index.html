@@ -33,25 +33,33 @@
 
         function updateGraph(log) {
             let labels = [];
-            let values = [];
+            let dispenseData = [];
+            let redactData = [];
+            let purgeData = [];
             let maxY = 1;
 
             for (let hour = 6; hour <= 21; hour++) {
                 let label = `${hour}:00`;
                 labels.push(label);
-                let count = 0;
+                let dispenseCount = 0, redactCount = 0, purgeCount = 0;
 
                 for (let minute = 0; minute < 60; minute++) {
                     let timeLabel = `${hour}:${minute < 10 ? "0" : ""}${minute}`;
-                    count += log[timeLabel] || 0;
+                    dispenseCount += log["dispense"][timeLabel] || 0;
+                    redactCount += log["redact"][timeLabel] || 0;
+                    purgeCount += log["purge"][timeLabel] || 0;
                 }
 
-                values.push(count);
-                if (count > maxY) maxY = count;
+                dispenseData.push(dispenseCount);
+                redactData.push(redactCount);
+                purgeData.push(purgeCount);
+                maxY = Math.max(maxY, dispenseCount, redactCount, purgeCount);
             }
 
             activityChart.data.labels = labels;
-            activityChart.data.datasets[0].data = values;
+            activityChart.data.datasets[0].data = dispenseData;
+            activityChart.data.datasets[1].data = redactData;
+            activityChart.data.datasets[2].data = purgeData;
             activityChart.options.scales.y.max = maxY + 1;
             activityChart.update();
         }
@@ -61,13 +69,29 @@
             type: 'bar',
             data: {
                 labels: [],
-                datasets: [{
-                    label: 'Treats Dispensed / Actions',
-                    data: [],
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                    barPercentage: 1.0,
-                    categoryPercentage: 0.8
-                }]
+                datasets: [
+                    {
+                        label: 'Dispense',
+                        data: [],
+                        backgroundColor: 'rgba(0, 255, 0, 0.8)',
+                        barPercentage: 1.0,
+                        categoryPercentage: 0.8
+                    },
+                    {
+                        label: 'Redact',
+                        data: [],
+                        backgroundColor: 'rgba(255, 165, 0, 0.8)',
+                        barPercentage: 1.0,
+                        categoryPercentage: 0.8
+                    },
+                    {
+                        label: 'Purge',
+                        data: [],
+                        backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                        barPercentage: 1.0,
+                        categoryPercentage: 0.8
+                    }
+                ]
             },
             options: {
                 scales: {
