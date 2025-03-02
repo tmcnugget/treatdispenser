@@ -6,11 +6,10 @@ from datetime import datetime
 from threading import Thread
 
 app = Flask(__name__)
-activity_log = {
-    "dispense": {},
-    "redact": {},
-    "purge": {}
-}
+
+# File path for activity log
+log_file_path = "activity_log.json"
+
 is_purging = False
 
 # Initialize the Motor HAT
@@ -18,6 +17,22 @@ kit = MotorKit()
 
 # Select stepper motor 1 (M1, M2, M3, M4)
 motor = kit.stepper1
+
+def save_log_to_file():
+    """Save activity log to the JSON file."""
+    with open(log_file_path, "w") as f:
+        json.dump(activity_log, f)
+
+def load_log_from_file():
+    """Load activity log from the JSON file."""
+    try:
+        with open(log_file_path, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {"dispense": {}, "redact": {}, "purge": {}}
+
+# Load the activity log when the server starts
+activity_log = load_log_from_file()
 
 def purgeMotor():
     """Function to move the motor in backward steps during purging"""
